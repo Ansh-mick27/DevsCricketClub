@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { addRegistration } from '../utils/firebaseUtils';
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -61,27 +62,39 @@ const Registration = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real application, this would send data to a backend
-    console.log('Registration Data:', formData);
-    setSubmitted(true);
     
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: '',
-        age: '',
-        role: '',
-        contact: '',
-        email: '',
-        experience: '',
-        emergencyContact: '',
-        previousClubs: '',
-        availability: []
-      });
-    }, 3000);
+    try {
+      // Save registration data to Firebase
+      const result = await addRegistration(formData);
+      
+      if (result.success) {
+        console.log('Registration Data saved:', formData);
+        setSubmitted(true);
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({
+            name: '',
+            age: '',
+            role: '',
+            contact: '',
+            email: '',
+            experience: '',
+            emergencyContact: '',
+            previousClubs: '',
+            availability: []
+          });
+        }, 3000);
+      } else {
+        alert('Registration failed: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Registration failed. Please try again.');
+    }
   };
 
   if (submitted) {
